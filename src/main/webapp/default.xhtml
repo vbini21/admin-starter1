@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:adm="http://github.com/adminfaces"
+	template="#{layoutMB.template}">
+
+	<ui:define name="metadata">
+		<ui:param name="title" value="School Feeding Program" />
+		<!-- Automatic create breadCrumb and page title when param 'title' is provided. -->
+
+		<h:outputStylesheet library="css" name="table-style.css" />
+	</ui:define>
+
+
+	<ui:define name="body">		
+		<style type="text/css">
+.value {
+	font-weight: bold;
+}
+</style>
+		<br />
+		<h:form>
+			<p:growl id="msgs" showDetail="true" />
+			<p:focus context="@form" />
+			<div class="box box-primary">
+				<div class="box-header with-border">
+					<p:separator />
+					<p:fieldset legend="Date Selection">
+						<p:messages />
+						<!--  Note that validatorMessage not needed because the UI
+         						will not let you enter an illegal date. -->
+						<strong>Date:</strong>
+						<p:calendar id="button"  value="#{order.items_date_fromView}"
+							showOn="button" requiredMessage="Date required">
+							<p:ajax event="dateSelect" listener="#{order.timeframeEndChanged}" />
+						</p:calendar>
+						<br />
+					</p:fieldset>
+					<h:dataTable value="#{order.orderList}" var="o"
+						styleClass="order-table" headerClass="order-table-header"
+						rowClasses="order-table-odd-row,order-table-even-row">
+						<h:column>
+
+							<f:facet name="header">Product ID</f:facet>
+
+							<h:inputText value="#{o.tid}" size="10" rendered="#{o.editable}" />
+
+							<h:outputText value="#{o.tid}" rendered="#{not o.editable}" />
+
+						</h:column>
+
+						<h:column>
+
+							<f:facet name="header">Product Name</f:facet>
+
+							<h:inputText value="#{o.name}" size="20" rendered="#{o.editable}" />
+
+							<h:outputText value="#{o.name}" rendered="#{not o.editable}" />
+
+						</h:column>
+
+						<h:column>
+
+							<f:facet name="header">Unit</f:facet>
+
+							<h:inputText value="#{o.unit}" size="10" rendered="#{o.editable}" />
+
+							<h:outputText value="#{o.unit}" rendered="#{not o.editable}" />
+
+						</h:column>
+
+						<h:column>
+
+							<f:facet name="header">Quantity</f:facet>
+
+							<h:inputText value="#{o.qty}" size="5" rendered="#{o.editable}" />
+
+							<h:outputText value="#{o.qty}" rendered="#{not o.editable}" />
+
+						</h:column>
+
+						<h:column>
+
+							<f:facet name="header">Action</f:facet>
+
+							<h:commandLink value="Edit" action="#{order.editAction(o)}"
+								rendered="#{not o.editable}" />
+
+						</h:column>
+
+					</h:dataTable>
+
+					<h:commandButton value="Save Changes" action="#{order.saveAction}" />
+				</div>
+			</div>
+			<p:confirmDialog global="true" showEffect="fade" hideEffect="fade"
+				styleClass="box-danger box-solid">
+				<p:commandButton value="Yes" type="button"
+					styleClass="btn-material btn-primary ui-confirmdialog-yes"
+					icon="fa fa-check" />
+				<p:commandButton value="No" type="button"
+					styleClass="btn-material btn-danger ui-confirmdialog-no"
+					icon="fa fa-close" />
+			</p:confirmDialog>
+		</h:form>
+	</ui:define>
+
+</ui:composition>

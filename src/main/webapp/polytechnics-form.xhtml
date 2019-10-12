@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="id" value="#{polytechnicFormMB.opno}" converter="javax.faces.Long"/>
+            <!-- use view action if you are in a Java EE 7 server: <f:viewAction action="#{polytechnicFormMB.init()}"/>-->
+            <f:event type="preRenderView" listener="#{polytechnicFormMB.init}"/>
+        </f:metadata>
+        <ui:param name="renderFormAsterisks" value="true"/>
+    </ui:define>
+    <ui:define name="title">
+        Polytechnics form
+    </ui:define>
+    <ui:define name="body">
+        <adm:breadcrumb title="#{empty polytechnicFormMB.opno ? 'New Polytechnic' : 'Polytechnic '.concat(polytechnicFormMB.opno)}" link="/schools-form.jsf?opno=#{polytechnicFormMB.opno}"/>
+        <h:form id="form" prependId="false">
+            <p:focus context="@form"/>
+            <p:panel styleClass="box-primary card">
+                <div id="main-buttons" class="hidden-sm hidden-xs">
+                    <p:commandButton value="Save" action="#{polytechnicFormMB.save}" update="@form"
+                                     icon="fa fa-check" styleClass="btn-primary"/>
+                    <p:spacer width="5" rendered="#{polytechnicFormMB.isNew()}"/>
+                    <p:commandButton value="Clear" action="#{polytechnicFormMB.clear}" process="@this"
+                                     icon="fa fa-refresh" styleClass="btn-success"
+                                     update="@form" rendered="#{polytechnicFormMB.isNew()}" resetValues="true"/>
+                    <p:spacer width="5" rendered="#{not polytechnicFormMB.isNew()}"/>
+
+                    <p:commandButton value="Delete" action="#{polytechnicFormMB.remove}" process="@this"
+                                     rendered="#{not polytechnicFormMB.isNew()}" icon="fa fa-trash"
+                                     styleClass="btn-danger">
+                        <f:setPropertyActionListener value="true"
+                                                     target="#{facesContext.externalContext.flash.keepMessages}"/>
+                        <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-danger"/>
+                    </p:commandButton>
+                    <p:spacer width="5"/>
+                    <p:commandButton value="Back" immediate="true"
+                                     action="polytechnics-list?faces-redirect=true"
+                                     process="@this"
+                                     icon="fa fa-reply"/>
+                </div>
+                <p:splitButton value="Save" action="#{polytechnicFormMB.save}" update="@form"
+                               icon="fa fa-check"
+                               styleClass="hidden-md hidden-lg btn-primary">
+                    <p:menuitem value="Reset" action="#{polytechnicFormMB.clear}"
+                                process="@this" update="@form" rendered="#{polytechnicFormMB.isNew()}"
+                                resetValues="true" icon="fa fa-refresh"/>
+                    <p:menuitem value="Delete" action="#{polytechnicFormMB.remove}" process="@this"
+                                rendered="#{not polytechnicFormMB.isNew()}" icon="fa fa-trash">
+                        <f:setPropertyActionListener value="true"
+                                                     target="#{facesContext.externalContext.flash.keepMessages}"/>
+                        <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-danger"/>
+                    </p:menuitem>
+                    <p:separator/>
+                    <p:menuitem value="Back" action="polytechnics-list?faces-redirect=true"
+                                process="@this" immediate="true"
+                                icon="fa fa-reply"/>
+                </p:splitButton>
+
+                <hr/>
+
+                <div class="ui-g ui-fluid">
+                    <!-- id -->
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad"> 
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel for="opno" value="ID:"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="opno" value="#{polytechnicFormMB.reception.opno}" readonly="true" styleClass="form-control ui-state-disabled" style="width: 100%"/>
+                            <span class="help-block"> 
+                                <p:message for="opno" /> 
+                            </span> 
+                        </div>
+                    </div>   
+                    <!-- Polytechnic names -->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">     
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Polytechnic Name" for="fullName"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="fullName" value="#{polytechnicFormMB.reception.names}" required="true"/>
+                            <span class="help-block"> 
+                                <p:message for="fullName" /> 
+                            </span>
+                        </div>
+                    </div>     
+
+                    <!-- manager -->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Manager" for="manager"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:autoComplete id="manager" value="#{polytechnicFormMB.reception.manager}" forceSelection="true"
+                                            minQueryLength="1" queryDelay="500" dropdown="true" required="true"
+                                            completeMethod="#{polytechnicFormMB.completeModelPolyStaffs}" maxResults="10">                                
+                            </p:autoComplete>
+                            <span class="help-block"> 
+                                <p:message for="manager"/> 
+                            </span>
+                        </div>
+                    </div>
+                    <!-- end manager -->   
+
+                    <!-- Phone Number-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Phone Number" for="phone"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="phone" value="#{polytechnicFormMB.reception.phone}" required="true"/>
+                            <span class="help-block"> 
+                                <p:message for="phone" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!-- tr_male-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Male Trainees" for="tr_male"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="tr_male" value="#{polytechnicFormMB.reception.tr_male}" required="true">
+
+                            </p:inputText>
+                            <span class="help-block"> 
+                                <p:message for="tr_male" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!--end  tr_male-->  
+
+                    <!-- tr_female-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Female Trainees" for="tr_female"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="tr_female" value="#{polytechnicFormMB.reception.tr_female}" required="true">
+
+                            </p:inputText>
+                            <span class="help-block"> 
+                                <p:message for="tr_female" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!--end  tr_female-->  
+                    <!-- tr_material-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Training Materials" for="tr_material"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="tr_material" value="#{polytechnicFormMB.reception.tr_material}" required="true">
+
+                            </p:inputText>
+                            <span class="help-block"> 
+                                <p:message for="tr_material" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!--end  tr_material-->  
+                    <!-- benches-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Benches" for="benches"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="benches" value="#{polytechnicFormMB.reception.benches}" required="true">
+
+                            </p:inputText>
+                            <span class="help-block"> 
+                                <p:message for="benches" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!--end  benches--> 
+                    <!-- tables-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Tables" for="tables"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="tables" value="#{polytechnicFormMB.reception.tables}" required="true">
+
+                            </p:inputText>
+                            <span class="help-block"> 
+                                <p:message for="tables" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!--end  tables--> 
+                    <!-- chairs-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Chairs" for="chairs"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="chairs" value="#{polytechnicFormMB.reception.chairs}" required="true">
+
+                            </p:inputText>
+                            <span class="help-block"> 
+                                <p:message for="chairs" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!--end  chairs--> 
+                    <!-- tools-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Tools" for="tools"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="tools" value="#{polytechnicFormMB.reception.tools}" required="true">
+
+                            </p:inputText>
+                            <span class="help-block"> 
+                                <p:message for="tools" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!--end  tools--> 
+
+                    <!-- machines-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Machines" for="machines"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="machines" value="#{polytechnicFormMB.reception.machines}" required="true">
+
+                            </p:inputText>
+                            <span class="help-block"> 
+                                <p:message for="machines" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!--end  machines-->                    
+                </div>
+
+                <h:panelGroup id="footer" layout="block" styleClass="hidden-sm hidden-md hidden-lg">
+                    <p:splitButton value="Save" action="#{polyStaffFormMB.save}" update="@form"
+                                   icon="fa fa-check"
+                                   styleClass="hidden-md hidden-lg btn-primary">
+                        <p:menuitem value="Reset" action="#{polyStaffFormMB.clear}"
+                                    process="@this" update="@form" rendered="#{polyStaffFormMB.isNew()}"
+                                    resetValues="true" icon="fa fa-refresh"/>
+                        <p:menuitem value="Delete" action="#{polyStaffFormMB.remove}" process="@this"
+                                    rendered="#{not polyStaffFormMB.isNew()}" icon="fa fa-trash">
+                            <f:setPropertyActionListener value="true"
+                                                         target="#{facesContext.externalContext.flash.keepMessages}"/>
+                            <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-danger"/>
+                        </p:menuitem>
+                        <p:separator/>
+                        <p:menuitem value="Back" action="polytechnics-list?faces-redirect=true"
+                                    process="@this" immediate="true"
+                                    icon="fa fa-reply"/>
+                    </p:splitButton>
+                </h:panelGroup>
+            </p:panel>
+
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" styleClass="box-danger box-solid">
+                <p:commandButton value="Yes" type="button" styleClass="btn-material btn-primary ui-confirmdialog-yes"
+                                 icon="fa fa-check"/>
+                <p:commandButton value="No" type="button" styleClass="btn-material btn-danger ui-confirmdialog-no"
+                                 icon="fa fa-close"/>
+            </p:confirmDialog>
+        </h:form>
+
+
+    </ui:define>
+
+</ui:composition>

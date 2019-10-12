@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="id" value="#{infraFormMB.opno}" converter="javax.faces.Long"/>
+            <!-- use view action if you are in a Java EE 7 server: <f:viewAction action="#{infraFormMB.init()}"/>-->
+            <f:event type="preRenderView" listener="#{infraFormMB.init}"/>
+        </f:metadata>
+        <ui:param name="renderFormAsterisks" value="true"/>
+    </ui:define>
+    <ui:define name="title">
+        ECDE Infrastructure form
+    </ui:define>
+    <ui:define name="body">
+        <adm:breadcrumb title="#{empty infraFormMB.opno ? 'New INFRA' : 'INFRA '.concat(infraFormMB.opno)}" link="/infra-form.jsf?opno=#{infraFormMB.opno}"/>
+        <h:form id="form" prependId="false">
+            <p:focus context="@form"/>
+            <p:panel styleClass="box-primary card">
+                <div id="main-buttons" class="hidden-sm hidden-xs">
+                    <p:commandButton value="Save" action="#{infraFormMB.save}" update="@form"
+                                     icon="fa fa-check" styleClass="btn-primary"/>
+                    <p:spacer width="5" rendered="#{infraFormMB.isNew()}"/>
+                    <p:commandButton value="Clear" action="#{infraFormMB.clear}" process="@this"
+                                     icon="fa fa-refresh" styleClass="btn-success"
+                                     update="@form" rendered="#{infraFormMB.isNew()}" resetValues="true"/>
+                    <p:spacer width="5" rendered="#{not infraFormMB.isNew()}"/>
+
+                    <p:commandButton value="Delete" action="#{infraFormMB.remove}" process="@this"
+                                     rendered="#{not infraFormMB.isNew()}" icon="fa fa-trash"
+                                     styleClass="btn-danger">
+                        <f:setPropertyActionListener value="true"
+                                                     target="#{facesContext.externalContext.flash.keepMessages}"/>
+                        <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-danger"/>
+                    </p:commandButton>
+                    <p:spacer width="5"/>
+                    <p:commandButton value="Back" immediate="true"
+                                     action="infra-list?faces-redirect=true"
+                                     process="@this"
+                                     icon="fa fa-reply"/>
+                </div>
+                <p:splitButton value="Save" action="#{infraFormMB.save}" update="@form"
+                               icon="fa fa-check"
+                               styleClass="hidden-md hidden-lg btn-primary">
+                    <p:menuitem value="Reset" action="#{infraFormMB.clear}"
+                                process="@this" update="@form" rendered="#{infraFormMB.isNew()}"
+                                resetValues="true" icon="fa fa-refresh"/>
+                    <p:menuitem value="Delete" action="#{infraFormMB.remove}" process="@this"
+                                rendered="#{not infraFormMB.isNew()}" icon="fa fa-trash">
+                        <f:setPropertyActionListener value="true"
+                                                     target="#{facesContext.externalContext.flash.keepMessages}"/>
+                        <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-danger"/>
+                    </p:menuitem>
+                    <p:separator/>
+                    <p:menuitem value="Back" action="infra-list?faces-redirect=true"
+                                process="@this" immediate="true"
+                                icon="fa fa-reply"/>
+                </p:splitButton>
+
+                <hr/>
+
+                <div class="ui-g ui-fluid">
+                    <!-- id -->
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad"> 
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel for="opno" value="ID:"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="opno" value="#{infraFormMB.reception.opno}" readonly="true" styleClass="form-control ui-state-disabled" style="width: 100%"/>
+                            <span class="help-block"> 
+                                <p:message for="opno" /> 
+                            </span> 
+                        </div>
+                    </div>   
+
+                    <!-- ECDE NAMES -->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="ECDE NAME" for="names"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:autoComplete id="names" value="#{infraFormMB.reception.names}" forceSelection="true"
+                                            minQueryLength="2" queryDelay="500" dropdown="true" required="true"
+                                            completeMethod="#{infraFormMB.completeModelEcde}" maxResults="10">                                
+                            </p:autoComplete>
+                            <span class="help-block"> 
+                                <p:message for="names"/> 
+                            </span>
+                        </div>
+                    </div>
+                    <!-- Permanent Classes -->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">     
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Permanent Classes" for="class_perm"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="class_perm" value="#{infraFormMB.reception.class_perm}"/>
+                            <span class="help-block"> 
+                                <p:message for="class_perm" /> 
+                            </span>
+                        </div>
+                    </div>    
+                    <!-- End Permanent Classes -->
+                    <!-- Temporary Classes-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Temporary Classes" for="class_temp"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="class_temp" value="#{infraFormMB.reception.class_temp}"/>
+                            <span class="help-block"> 
+                                <p:message for="class_temp" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!-- End Temporary Classes-->   
+                    <!-- Required Classes-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Required Classes" for="class_req"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="class_req" value="#{infraFormMB.reception.class_req}"/>
+                            <span class="help-block"> 
+                                <p:message for="class_req" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!-- End Required Classes--> 
+                    <!-- Toilets-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Toilets" for="toilets"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="toilets" value="#{infraFormMB.reception.toilets}"/>
+                            <span class="help-block"> 
+                                <p:message for="toilets" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!-- End Toilets--> 
+                    <!-- Required Toilets-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Required Toilets" for="toilets_req"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="toilets_req" value="#{infraFormMB.reception.toilets_req}"/>
+                            <span class="help-block"> 
+                                <p:message for="toilets_req" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!-- End Required Toilets--> 
+                    <!-- Desks-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Desks" for="desks"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="desks" value="#{infraFormMB.reception.desks}"/>
+                            <span class="help-block"> 
+                                <p:message for="desks" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!-- End Desks--> 
+                    <!-- Fencing-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Fencing" for="fencing"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="fencing" value="#{infraFormMB.reception.fencing}"/>
+                            <span class="help-block"> 
+                                <p:message for="fencing" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!-- End Fencing--> 
+                    <!-- Sponsor-->                
+                    <div class="ui-sm-12 ui-g-6 ui-g-nopad">    
+                        <div class="ui-sm-12 ui-g-11">
+                            <p:outputLabel value="Sponsor" for="sponsor"/>
+                        </div>
+                        <div class="ui-sm-12 ui-g-11" >
+                            <p:inputText id="sponsor" value="#{infraFormMB.reception.sponsor}"/>
+                            <span class="help-block"> 
+                                <p:message for="sponsor" /> 
+                            </span>
+                        </div>
+                    </div>
+                    <!-- End Sponsor--> 
+                </div>
+                <h:panelGroup id="footer" layout="block" styleClass="hidden-sm hidden-md hidden-lg">
+                    <hr/>
+                    <p:splitButton value="Save" action="#{infraFormMB.save}" update="@form"
+                                   icon="fa fa-check"
+                                   styleClass="hidden-md hidden-lg btn-primary">
+                        <p:menuitem value="Reset" action="#{infraFormMB.clear}"
+                                    process="@this" update="@form" rendered="#{infraFormMB.isNew()}"
+                                    resetValues="true" icon="fa fa-refresh"/>
+                        <p:menuitem value="Delete" action="#{infraFormMB.remove}" process="@this"
+                                    rendered="#{not infraFormMB.isNew()}" icon="fa fa-trash">
+                            <f:setPropertyActionListener value="true"
+                                                         target="#{facesContext.externalContext.flash.keepMessages}"/>
+                            <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-danger"/>
+                        </p:menuitem>
+                        <p:separator/>
+                        <p:menuitem value="Back" action="infra-list?faces-redirect=true"
+                                    process="@this" immediate="true"
+                                    icon="fa fa-reply"/>
+                    </p:splitButton>
+                </h:panelGroup>
+            </p:panel>
+
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" styleClass="box-danger box-solid">
+                <p:commandButton value="Yes" type="button" styleClass="btn-material btn-primary ui-confirmdialog-yes"
+                                 icon="fa fa-check"/>
+                <p:commandButton value="No" type="button" styleClass="btn-material btn-danger ui-confirmdialog-no"
+                                 icon="fa fa-close"/>
+            </p:confirmDialog>
+        </h:form>
+        
+    </ui:define>
+
+</ui:composition>

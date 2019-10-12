@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:adm="http://github.com/adminfaces"
+                template="#{layoutMB.template}">
+
+    <ui:define name="metadata">
+        <ui:param name="title" value="Polytechnic listing"/> <!-- Automatic create breadCrumb and page title when param 'title' is provided. --> 
+
+        <style type="text/css">
+            .ui-datatable .ui-datatable-header {
+                text-align: right !important;
+            }
+        </style>
+    </ui:define>
+
+    <ui:define name="description">
+        Find Polytechnic by name or ID
+    </ui:define>
+
+    <ui:define name="body">
+        <h:form>
+            <p:focus context="@form"/>
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <div id="main-buttons" class="hidden-sm hidden-xs">
+                        <!-- New Polytechnic Button -->
+                        <p:commandButton action="/polytechnics-form?faces-redirect=true" icon="fa fa-plus"
+                                         value="New" styleClass="btn-primary"/>
+                        <p:spacer width="5"/>
+                        <!-- Delete Selected Account Button -->
+                        <p:commandButton value="Delete Selected" icon="fa fa-trash" styleClass="btn-danger"
+                                         action="#{polytechnicListMB.delete}"
+                                         disabled="#{empty polytechnicListMB.selectedPatients or polytechnicListMB.selectedPatients.size() == 0}"
+                                         process="@this" update="@form"
+                                         >
+                            <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-danger"/>
+                        </p:commandButton>
+                        <p:spacer width="5"/>
+                        <!-- View Selected Account Button -->
+                        <p:commandButton value="View selected" update="@(.ui-dialog)" styleClass="btn-info"
+                                         disabled="#{empty polytechnicListMB.selectedPatients or polytechnicListMB.selectedPatients.size() == 0}"
+                                         oncomplete="PF('selectedPatients').show()" icon="fa fa-search"/>
+                    </div>
+                    <!-- Display for small screens such as mobile phone -->
+                    <p:splitButton value="New" action="/polytechnics-form?faces-redirect=true"
+                                   icon="fa fa-plus"
+                                   styleClass="hidden-md hidden-lg btn-primary">
+                        <p:menuitem value="Delete Selected" action="#{polytechnicListMB.delete}"
+                                    process="@this" update="@form"
+                                    disabled="#{empty polytechnicListMB.selectedPatients or polytechnicListMB.selectedPatients.size() == 0}"
+                                    icon="fa fa-trash">
+                            <p:confirm header="Confirmation" message="Are you sure?" icon="ui-icon-danger"/>
+                        </p:menuitem>
+                        <p:menuitem value="View selected" update="@(.ui-dialog)"
+                                    oncomplete="PF('selectedPatients').show()"
+                                    disabled="#{empty polytechnicListMB.selectedPatients or polytechnicListMB.selectedPatients.size() == 0}"
+                                    icon="fa fa-search"
+                                    />
+                    </p:splitButton>
+
+                    <p:separator/>
+                    <p:dataTable widgetVar="patientsTable" var="c" value="#{polytechnicListMB.patients}" rows="5"
+                                 rowKey="#{c.opno}" lazy="true" paginator="true"
+                                 filteredValue="#{polytechnicListMB.filteredValue}"
+                                 paginatorPosition="bottom" selection="#{polytechnicListMB.selectedPatients}"
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {JumpToPageDropdown}"
+                                 currentPageReportTemplate="[ {startRecord} to {endRecord} of {totalRecords} ]"
+                                 rowsPerPageTemplate="5,10,15,20,30"
+                                 >
+
+                        <p:ajax event="rowSelectCheckbox" update="@(.ui-button, .ui-confirm-dialog)"/>
+                        <p:ajax event="rowUnselectCheckbox" update="@(.ui-button, .ui-confirm-dialog)"/>
+                        <p:ajax event="rowSelect" update="@(.ui-button, .ui-confirm-dialog)"/>
+                        <p:ajax event="rowUnselect" update="@(.ui-button, .ui-confirm-dialog)"/>
+
+
+                        <f:facet name="header">
+                            Find Polytechnic by ID#: <p:inputNumber id="inptId" decimalPlaces="0" thousandSeparator="" decimalSeparator="" value="#{polytechnicListMB.opno}"/>
+                            <p:spacer height="5"/>
+                            <p:commandButton id="brFind"
+                                             value="Find"
+                                             action="#{polytechnicListMB.findPatientById(polytechnicListMB.opno)}"
+                                             process="@form"
+                                             update="@form"
+                                             styleClass="btn-flat bg-black btn-states"
+                                             partialSubmit="true"/>
+                        </f:facet>
+                        <p:column selectionMode="multiple" width="5%" styleClass="align-center"/>
+
+                        <!-- Polytechnic ID Column -->
+                        <p:column headerText="ID #" filterBy="#{c.opno}" sortBy="#{c.opno}"
+                                  filterMatchMode="contains">
+                            <f:facet name="filter">
+                                <p:autoComplete value="#{polytechnicListMB.filter.entity.opno}" forceSelection="true"
+                                                minQueryLength="2" queryDelay="500" dropdown="true"
+                                                completeMethod="#{polytechnicListMB.completeModelOpno}" maxResults="10">
+                                    <p:ajax event="itemSelect" process="@this" update="@none"
+                                            oncomplete="PF('patientsTable').filter()"/>
+                                </p:autoComplete>
+                            </f:facet>
+                            <p:link value="#{c.opno}" outcome="/polytechnics-form" >
+                                <f:param name="opno" value="#{c.opno}"/>
+                            </p:link>
+                        </p:column>
+
+                        <!-- Polytechnic Names Column -->
+                        <p:column headerText="Names" filterBy="#{c.names}" sortBy="#{c.names}"
+                                  filterMatchMode="contains">
+                            <f:facet name="filter">
+                                <p:autoComplete value="#{polytechnicListMB.filter.entity.names}" forceSelection="true"
+                                                minQueryLength="2" queryDelay="500" dropdown="true"
+                                                completeMethod="#{polytechnicListMB.completeModel}" maxResults="10">
+                                    <p:ajax event="itemSelect" process="@this" update="@none"
+                                            oncomplete="PF('patientsTable').filter()"/>
+                                </p:autoComplete>
+                            </f:facet>
+                            <p:link value="#{c.names}" outcome="/polytechnics-form" >
+                                <f:param name="names" value="#{c.names}"/>
+                            </p:link>
+                        </p:column>   
+
+                        <!-- Phone Column -->
+                        <p:column headerText="Phone" filterBy="#{c.phone}" sortBy="#{c.phone}"
+                                  filterMatchMode="contains">
+                            <f:facet name="filter">
+                                <p:autoComplete value="#{polytechnicListMB.filter.entity.phone}" forceSelection="true"
+                                                minQueryLength="2" queryDelay="500" dropdown="true"
+                                                completeMethod="#{polytechnicListMB.completeModelPhone}" maxResults="10">
+                                    <p:ajax event="itemSelect" process="@this" update="@none"
+                                            oncomplete="PF('patientsTable').filter()"/>
+                                </p:autoComplete>
+                            </f:facet>
+                            <p:link value="#{c.phone}" outcome="/polytechnics-form" >
+                                <f:param name="phone" value="#{c.phone}"/>
+                            </p:link>
+                        </p:column>                        
+                    </p:dataTable>
+                </div>
+            </div>
+            
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" styleClass="box-danger box-solid">
+                <p:commandButton value="Yes" type="button" styleClass="btn-material btn-primary ui-confirmdialog-yes"
+                                 icon="fa fa-check"/>
+                <p:commandButton value="No" type="button" styleClass="btn-material btn-danger ui-confirmdialog-no"
+                                 icon="fa fa-close"/>
+            </p:confirmDialog>
+        </h:form>
+
+
+
+        <p:dialog header="Selected Teachers" widgetVar="selectedPatients" height="250"
+                  width="400" responsive="true" styleClass="box-success">
+            <p:dataList id="selectedPatientsList" value="#{polytechnicListMB.selectedPatients}" var="ps"          
+                        type="definition">    
+                ID:         #{ps.opno}<br/>
+                NAME:       #{ps.names}<br/>
+                MANAGER:       #{ps.manager}<br/>
+                PHONE:       #{ps.phone}<br/>
+                MALE TRAINEES:       #{ps.tr_male}<br/>
+                FEMALE TRAINEES:         #{ps.tr_female}<br/>
+                TRAINING MATERIALS:       #{ps.tr_material}<br/>
+                BENCHES:       #{ps.benches}<br/>     
+                TABLES:       #{ps.tables}<br/>
+                CHAIRS:       #{ps.chairs}<br/>
+                TOOLS:         #{ps.tools}<br/>
+                MACHINES:       #{ps.machines}<br/>             
+                DATE CREATED:       #{ps.date_created}<br/>
+                CREATED BY:       #{ps.created_by}<br/>
+            </p:dataList>
+        </p:dialog>
+
+    </ui:define>
+
+</ui:composition>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:adm="http://github.com/adminfaces"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <ui:fragment rendered="#{activation.valid}">
+            <meta http-equiv="refresh" content="3;url=home.xhtml" />
+        </ui:fragment>
+    </h:head>
+    <h:body>
+        <h:panelGroup layout="block" rendered="#{activation.valid}">
+            <p>Your account is successfully activated!</p>
+            <p>You will in 3 seconds be redirected to <h:link outcome="home">home page</h:link></p>
+        </h:panelGroup>
+        <h:panelGroup layout="block" rendered="#{!activation.valid}">
+            <p>Activation failed! Please enter your email address to try once again.</p> 
+            <h:form>
+                ...
+            </h:form>
+        </h:panelGroup>
+    </h:body>
+</html>
